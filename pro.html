@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restaurant Order</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 20px;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #4CAF50;
+            text-align: center;
+        }
+        .menu {
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .menu-item {
+            margin: 5px 0;
+            font-weight: bold;
+        }
+        .bill {
+            font-size: 18px;
+            color: #FF5722;
+            margin: 10px 0;
+        }
+        .error {
+            color: #F44336;
+            font-weight: bold;
+        }
+        .thank-you {
+            text-align: center;
+            font-size: 20px;
+            color: #2196F3;
+        }
+        .input-section {
+            margin: 10px 0;
+        }
+        .hidden {
+            display: none;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        select, input {
+            padding: 8px;
+            margin: 5px 0;
+            width: 100%;
+            max-width: 300px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Welcome to our Restaurant, Here is our menu</h1>
+    <div class="menu">
+        <div class="menu-item">Pizza: 120</div>
+        <div class="menu-item">Burger: 80</div>
+        <div class="menu-item">Salad: 40</div>
+        <div class="menu-item">Coffee: 25</div>
+    </div>
+
+    <div id="order1-section" class="input-section">
+        <label for="order1">What do you want to order?</label>
+        <select id="order1">
+            <option value="">Select an item</option>
+            <option value="Pizza">Pizza</option>
+            <option value="Burger">Burger</option>
+            <option value="Salad">Salad</option>
+            <option value="Coffee">Coffee</option>
+        </select>
+        <button onclick="submitOrder1()">Submit Order</button>
+    </div>
+
+    <div id="order2-response-section" class="input-section hidden">
+        <label for="order2-response">Do you want to order more? (Yes/No)</label>
+        <select id="order2-response">
+            <option value="">Select</option>
+            <option value="Yes">Yes</option>
+            <option value="No">No</option>
+        </select>
+        <button onclick="submitOrder2Response()">Submit</button>
+    </div>
+
+    <div id="order2-section" class="input-section hidden">
+        <label for="order2">What else do you want to order?</label>
+        <select id="order2">
+            <option value="">Select an item</option>
+            <option value="Pizza">Pizza</option>
+            <option value="Burger">Burger</option>
+            <option value="Salad">Salad</option>
+            <option value="Coffee">Coffee</option>
+        </select>
+        <button onclick="submitOrder2()">Submit</button>
+    </div>
+
+    <div id="coupon-section" class="input-section hidden">
+        <label for="coupon">Do you have a coupon code? (Enter 'Sihab' for 20% off)</label>
+        <input type="text" id="coupon" placeholder="Enter coupon code">
+        <button onclick="applyCoupon()">Apply Coupon</button>
+    </div>
+
+    <div id="output"></div>
+
+    <script>
+        const menu = {
+            'Pizza': 120,
+            'Burger': 80,
+            'Salad': 40,
+            'Coffee': 25,
+            'Sihab': 0.2,
+        };
+
+        let order1 = '';
+        let order2 = '';
+        let totalBill = 0;
+
+        function submitOrder1() {
+            order1 = document.getElementById('order1').value;
+            if (!order1 || order1 === 'Sihab') {
+                document.getElementById('output').innerHTML = "<div class='error'>Invalid order. Please choose from the menu.</div>";
+                return;
+            }
+            document.getElementById('output').innerHTML = `<div class='bill'>Your bill is: ${menu[order1]}</div>`;
+            document.getElementById('order1-section').classList.add('hidden');
+            document.getElementById('order2-response-section').classList.remove('hidden');
+        }
+
+        function submitOrder2Response() {
+            const response = document.getElementById('order2-response').value;
+            if (response === 'No') {
+                if (order1 !== 'Coffee') {
+                    document.getElementById('output').innerHTML += `<div class='bill'>Your total bill is ${menu[order1]}</div><div class="thank-you">Thank you for ordering</div>`;
+                } else {
+                    document.getElementById('output').innerHTML += "<div class='error'>Sorry sir, You Can't order just a coffee</div><div class='thank-you'>Thank You</div>";
+                }
+                hideAllSections();
+            } else if (response === 'Yes') {
+                document.getElementById('order2-response-section').classList.add('hidden');
+                document.getElementById('order2-section').classList.remove('hidden');
+            } else {
+                document.getElementById('output').innerHTML += "<div class='error'>Invalid response. Please answer Yes or No.</div>";
+            }
+        }
+
+        function submitOrder2() {
+            order2 = document.getElementById('order2').value;
+            if (!order2 || order2 === 'Sihab') {
+                document.getElementById('output').innerHTML += "<div class='error'>Invalid second order. Please choose from the menu.</div>";
+                return;
+            }
+            totalBill = menu[order1] + menu[order2];
+            document.getElementById('output').innerHTML += `<div class='bill'>Your total bill is: ${totalBill}</div>`;
+            document.getElementById('order2-section').classList.add('hidden');
+            document.getElementById('coupon-section').classList.remove('hidden');
+        }
+
+        function applyCoupon() {
+            const coupon = document.getElementById('coupon').value.trim().toLowerCase();
+            if (coupon === 'sihab') {
+                const discValue = totalBill * menu['Sihab'];
+                document.getElementById('output').innerHTML += `<div class='bill'>Your bill after 20% Discount: ${totalBill - discValue}</div>`;
+            } else {
+                document.getElementById('output').innerHTML += `<div class='bill'>Your total bill is: ${totalBill}</div>`;
+            }
+            document.getElementById('output').innerHTML += "<div class='thank-you'>Thank you for ordering</div>";
+            hideAllSections();
+        }
+
+        function hideAllSections() {
+            document.getElementById('order1-section').classList.add('hidden');
+            document.getElementById('order2-response-section').classList.add('hidden');
+            document.getElementById('order2-section').classList.add('hidden');
+            document.getElementById('coupon-section').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
